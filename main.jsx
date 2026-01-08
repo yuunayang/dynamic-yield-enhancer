@@ -226,7 +226,7 @@ const TradingApp = () => {
   return (
     <div 
       ref={containerRef}
-      className="w-full h-screen bg-zinc-950 flex items-center justify-center overflow-hidden"
+      className="w-full h-screen bg-transparent flex items-center justify-center overflow-hidden"
     >
       {/* Scaled Container */}
       <div 
