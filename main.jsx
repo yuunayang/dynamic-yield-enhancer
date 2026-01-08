@@ -23,6 +23,14 @@ import {
 } from 'lucide-react';
 
 const TradingApp = () => {
+  // 原始设计尺寸
+  const DESIGN_WIDTH = 390;
+  const DESIGN_HEIGHT = 844;
+  
+  // 自适应缩放
+  const containerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  
   // 模拟实时价格波动
   const [currentPrice, setCurrentPrice] = useState(64230.50);
   const [priceChange, setPriceChange] = useState(2.45);
@@ -59,6 +67,43 @@ const TradingApp = () => {
       setPriceChange(prev => prev + (Math.random() - 0.5) * 0.1);
     }, 2000);
     return () => clearInterval(interval);
+  }, []);
+
+  // 自适应缩放计算
+  useEffect(() => {
+    const calculateScale = () => {
+      if (!containerRef.current) return;
+      
+      const container = containerRef.current;
+      const availableWidth = container.clientWidth;
+      const availableHeight = container.clientHeight;
+      
+      // 计算宽度和高度的缩放比例
+      const scaleX = availableWidth / DESIGN_WIDTH;
+      const scaleY = availableHeight / DESIGN_HEIGHT;
+      
+      // 取较小值以保持比例，并设置上下限
+      let newScale = Math.min(scaleX, scaleY);
+      newScale = Math.max(0.4, Math.min(1.2, newScale)); // 最小 0.4x，最大 1.2x
+      
+      setScale(newScale);
+    };
+
+    calculateScale();
+    
+    // 监听窗口大小变化
+    window.addEventListener('resize', calculateScale);
+    
+    // 使用 ResizeObserver 监听容器大小变化（更精确）
+    const resizeObserver = new ResizeObserver(calculateScale);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', calculateScale);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // 模拟K线数据
@@ -179,15 +224,25 @@ const TradingApp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
-      {/* iPhone Frame - 375x812 (iPhone X/11/12/13 mini) */}
-      <div className="w-[375px] h-[812px] bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-950 to-zinc-950 rounded-[47px] border-[7px] border-zinc-800 overflow-hidden relative shadow-2xl flex flex-col">
+    <div 
+      ref={containerRef}
+      className="w-full h-screen bg-zinc-950 flex items-center justify-center overflow-hidden"
+    >
+      {/* Scaled Container */}
+      <div 
+        style={{
+          transform: `scale(${scale})`,
+          transformOrigin: 'center center',
+        }}
+      >
+        {/* iPhone 14 Frame */}
+        <div className="w-[390px] h-[844px] bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-950 to-zinc-950 rounded-[50px] border-[8px] border-zinc-800 overflow-hidden relative shadow-2xl flex flex-col">
         
         {/* Dynamic Island */}
-        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-[120px] h-[34px] bg-black rounded-full z-50"></div>
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-[126px] h-[37px] bg-black rounded-full z-50"></div>
         
         {/* Status Bar - Fixed */}
-        <div className="h-11 px-7 flex items-end justify-between text-white text-[11px] font-medium pb-1 flex-shrink-0">
+        <div className="h-12 px-8 flex items-end justify-between text-white text-xs font-medium pb-1 flex-shrink-0">
           <span>9:41</span>
           <div className="flex items-center gap-1">
             <div className="flex gap-0.5">
@@ -205,31 +260,31 @@ const TradingApp = () => {
         </div>
 
         {/* App Header - Fixed */}
-        <div className="px-3.5 py-2 flex items-center justify-between border-b border-zinc-800/50 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
-              <span className="text-white font-bold text-xs">₿</span>
+        <div className="px-4 py-2.5 flex items-center justify-between border-b border-zinc-800/50 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
+              <span className="text-white font-bold text-sm">₿</span>
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-white font-semibold text-[14px]">BTC/USDT</span>
-                <span className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">Perp</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white font-semibold text-[15px]">BTC/USDT</span>
+                <span className="text-[11px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">Perp</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-white font-mono text-[13px]">{formatCurrency(currentPrice)}</span>
-                <span className={`text-[10px] flex items-center ${priceChange >= 0 ? 'text-lime-400' : 'text-red-400'}`}>
-                  {priceChange >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
+              <div className="flex items-center gap-2">
+                <span className="text-white font-mono text-sm">{formatCurrency(currentPrice)}</span>
+                <span className={`text-[11px] flex items-center ${priceChange >= 0 ? 'text-lime-400' : 'text-red-400'}`}>
+                  {priceChange >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                   {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
                 </span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-3">
             <button className="text-zinc-500 hover:text-zinc-300">
-              <Bell size={18} />
+              <Bell size={20} />
             </button>
             <button className="text-zinc-500 hover:text-zinc-300">
-              <Settings size={18} />
+              <Settings size={20} />
             </button>
           </div>
         </div>
@@ -237,19 +292,19 @@ const TradingApp = () => {
         {/* Scrollable Content Area */}
         <div 
           ref={scrollContainerRef}
-          className="flex-1 overflow-y-auto pb-32 scrollbar-hide"
+          className="flex-1 overflow-y-auto pb-36 scrollbar-hide"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
         {/* Chart Area */}
-        <div className="h-[240px] px-2 py-2.5 relative flex-shrink-0 bg-transparent z-20">
+        <div className="h-[260px] px-2 py-3 relative flex-shrink-0 bg-transparent z-20">
           {/* Chart Content Container with Overflow Hidden */}
-          <div className="absolute inset-0 overflow-hidden px-2 py-2.5">
+          <div className="absolute inset-0 overflow-hidden px-2 py-3">
             {/* Time tabs */}
-            <div className="flex items-center gap-1 px-1.5 mb-3 relative z-10">
+            <div className="flex items-center gap-1 px-2 mb-4 relative z-10">
             {['1m', '5m', '15m', '1H', '4H', '1D'].map((t, i) => (
               <button 
                 key={t}
-                className={`flex-1 py-1 text-[9px] font-medium rounded-md transition-all ${
+                className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg transition-all ${
                   i === 3 
                     ? 'bg-zinc-800 text-zinc-100 shadow-sm ring-1 ring-white/5' 
                     : 'text-zinc-500 hover:text-zinc-400 hover:bg-zinc-900'
@@ -261,7 +316,7 @@ const TradingApp = () => {
           </div>
 
           {/* Candlestick Chart */}
-          <div className="h-[185px] flex items-end justify-between gap-0.5 pl-2 pr-12 relative z-0">
+          <div className="h-[200px] flex items-end justify-between gap-0.5 pl-2 pr-14 relative z-0">
             {/* Grid lines */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="border-b border-zinc-800/20 h-1/4 w-full absolute top-1/4"></div>
@@ -310,7 +365,7 @@ const TradingApp = () => {
           </div>
           
           {/* Price scale */}
-          <div className="absolute right-2.5 top-10 bottom-4 flex flex-col justify-between text-[9px] text-zinc-500 font-mono pointer-events-none z-10">
+          <div className="absolute right-3 top-12 bottom-4 flex flex-col justify-between text-[10px] text-zinc-500 font-mono pointer-events-none z-10">
             <span>65,000</span>
             <span>64,500</span>
             <span>64,000</span>
@@ -321,8 +376,8 @@ const TradingApp = () => {
           
           {/* Hover Tooltip - Outside overflow-hidden container */}
           {hoveredCandle !== null && (
-            <div className="absolute top-12 left-3 bg-zinc-900/95 backdrop-blur border border-zinc-800 rounded-lg p-2.5 z-30 shadow-2xl ring-1 ring-black/20 pointer-events-none">
-              <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-[9px]">
+            <div className="absolute top-14 left-4 bg-zinc-900/95 backdrop-blur border border-zinc-800 rounded-xl p-3 z-30 shadow-2xl ring-1 ring-black/20 pointer-events-none">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10px]">
                 <span className="text-zinc-500">Open</span>
                 <span className="text-zinc-200 font-mono text-right">{candlesticks[hoveredCandle].open.toFixed(2)}</span>
                 <span className="text-zinc-500">High</span>
@@ -339,31 +394,31 @@ const TradingApp = () => {
         </div>
 
         {/* Order Book & Market Info */}
-        <div className="px-4 py-5 border-t border-zinc-900 bg-transparent relative z-10">
+        <div className="px-5 py-6 border-t border-zinc-900 bg-transparent relative z-10">
           {/* Order Book Header */}
-          <div className="flex justify-between items-end mb-3 px-0.5">
-            <span className="text-[11px] text-zinc-300 font-semibold tracking-wide">Order Book</span>
-            <div className="flex items-center gap-3">
-              <span className="text-[9px] text-zinc-500 font-medium">Spread <span className="text-zinc-400 font-mono ml-0.5">0.01%</span></span>
-              <span className="text-[9px] text-zinc-500 font-medium">Depth <span className="text-zinc-400 font-mono ml-0.5">±0.1%</span></span>
+          <div className="flex justify-between items-end mb-4 px-1">
+            <span className="text-xs text-zinc-300 font-semibold tracking-wide">Order Book</span>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] text-zinc-500 font-medium">Spread <span className="text-zinc-400 font-mono ml-1">0.01%</span></span>
+              <span className="text-[10px] text-zinc-500 font-medium">Depth <span className="text-zinc-400 font-mono ml-1">±0.1%</span></span>
             </div>
           </div>
           
           {/* Order Book Table Header */}
-          <div className="flex gap-3 mb-2 px-0.5">
-            <div className="flex-1 flex justify-between text-[9px] font-medium text-zinc-600">
+          <div className="flex gap-4 mb-2.5 px-1">
+            <div className="flex-1 flex justify-between text-[10px] font-medium text-zinc-600">
               <span>Size (BTC)</span>
               <span>Bid</span>
             </div>
-            <div className="flex-1 flex justify-between text-[9px] font-medium text-zinc-600">
+            <div className="flex-1 flex justify-between text-[10px] font-medium text-zinc-600">
               <span>Ask</span>
               <span>Size (BTC)</span>
             </div>
           </div>
           
           {/* Order Book Data */}
-          <div className="flex gap-3">
-            <div className="flex-1 space-y-1">
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-1.5">
               {[
                 { size: 2.45, price: 64228.50, depth: 0.85 },
                 { size: 1.82, price: 64225.00, depth: 0.65 },
@@ -372,14 +427,14 @@ const TradingApp = () => {
                 { size: 1.56, price: 64210.00, depth: 0.55 },
                 { size: 2.88, price: 64205.00, depth: 0.78 },
               ].map((row, i) => (
-                <div key={i} className="flex items-center justify-between relative h-5 group">
+                <div key={i} className="flex items-center justify-between relative h-6 group">
                   <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-lime-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
-                  <span className="text-[10px] text-zinc-400 font-mono relative z-10 pl-0.5">{row.size.toFixed(2)}</span>
-                  <span className="text-[10px] text-lime-400/90 font-mono relative z-10 pr-0.5 group-hover:text-lime-400 transition-colors">{row.price.toFixed(2)}</span>
+                  <span className="text-[11px] text-zinc-400 font-mono relative z-10 pl-1">{row.size.toFixed(2)}</span>
+                  <span className="text-[11px] text-lime-400/90 font-mono relative z-10 pr-1 group-hover:text-lime-400 transition-colors">{row.price.toFixed(2)}</span>
                 </div>
               ))}
             </div>
-            <div className="flex-1 space-y-1">
+            <div className="flex-1 space-y-1.5">
               {[
                 { size: 1.95, price: 64232.00, depth: 0.60 },
                 { size: 2.67, price: 64235.50, depth: 0.75 },
@@ -388,35 +443,35 @@ const TradingApp = () => {
                 { size: 2.01, price: 64250.00, depth: 0.58 },
                 { size: 1.78, price: 64255.50, depth: 0.52 },
               ].map((row, i) => (
-                <div key={i} className="flex items-center justify-between relative h-5 group">
+                <div key={i} className="flex items-center justify-between relative h-6 group">
                   <div className="absolute left-0 bottom-0 right-0 h-0.5 bg-red-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
-                  <span className="text-[10px] text-red-400/90 font-mono relative z-10 pl-0.5 group-hover:text-red-400 transition-colors">{row.price.toFixed(2)}</span>
-                  <span className="text-[10px] text-zinc-400 font-mono relative z-10 pr-0.5">{row.size.toFixed(2)}</span>
+                  <span className="text-[11px] text-red-400/90 font-mono relative z-10 pl-1 group-hover:text-red-400 transition-colors">{row.price.toFixed(2)}</span>
+                  <span className="text-[11px] text-zinc-400 font-mono relative z-10 pr-1">{row.size.toFixed(2)}</span>
                 </div>
               ))}
             </div>
           </div>
           
           {/* Market Stats */}
-          <div className="mt-5 grid grid-cols-3 gap-2.5">
-            <div className="bg-zinc-900 rounded-lg p-2.5 border border-zinc-800/60 flex flex-col justify-center">
-              <div className="text-[9px] font-medium text-zinc-500 mb-0.5">24h Volume</div>
-              <div className="text-[11px] text-zinc-200 font-mono font-medium">$2.84B</div>
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800/60 flex flex-col justify-center">
+              <div className="text-[10px] font-medium text-zinc-500 mb-1">24h Volume</div>
+              <div className="text-xs text-zinc-200 font-mono font-medium">$2.84B</div>
             </div>
-            <div className="bg-zinc-900 rounded-lg p-2.5 border border-zinc-800/60 flex flex-col justify-center">
-              <div className="text-[9px] font-medium text-zinc-500 mb-0.5">24h High</div>
-              <div className="text-[11px] text-lime-400/90 font-mono font-medium">$65,420</div>
+            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800/60 flex flex-col justify-center">
+              <div className="text-[10px] font-medium text-zinc-500 mb-1">24h High</div>
+              <div className="text-xs text-lime-400/90 font-mono font-medium">$65,420</div>
             </div>
-            <div className="bg-zinc-900 rounded-lg p-2.5 border border-zinc-800/60 flex flex-col justify-center">
-              <div className="text-[9px] font-medium text-zinc-500 mb-0.5">24h Low</div>
-              <div className="text-[11px] text-red-400/90 font-mono font-medium">$62,180</div>
+            <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800/60 flex flex-col justify-center">
+              <div className="text-[10px] font-medium text-zinc-500 mb-1">24h Low</div>
+              <div className="text-xs text-red-400/90 font-mono font-medium">$62,180</div>
             </div>
           </div>
           
           {/* Position Panel - inline below market stats */}
           {viewState === 'position' && positionData && (
-            <div ref={positionPanelRef} className="mt-5 bg-zinc-900/80 backdrop-blur-sm rounded-xl border border-zinc-800 p-4 shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            <div ref={positionPanelRef} className="mt-6 bg-zinc-900/80 backdrop-blur-sm rounded-2xl border border-zinc-800 p-5 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
               {(() => {
                 const { pnl, pnlPercent, currentMultiplier, progress } = calculatePositionPnL();
                 const isProfit = pnl >= 0;
@@ -424,11 +479,11 @@ const TradingApp = () => {
   return (
                   <>
                     {/* Position Header */}
-                    <div className="flex items-center justify-between mb-3 relative z-10">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${positionData?.direction === 'long' ? 'bg-lime-500 shadow-[0_0_6px_rgba(132,204,22,0.5)]' : 'bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]'} animate-pulse`}></div>
-                        <span className="text-[11px] font-medium text-zinc-300">Active Position</span>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium border ${
+                    <div className="flex items-center justify-between mb-4 relative z-10">
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-2.5 h-2.5 rounded-full ${positionData?.direction === 'long' ? 'bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'} animate-pulse`}></div>
+                        <span className="text-xs font-medium text-zinc-300">Active Position</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
                           positionData?.direction === 'long' 
                             ? 'bg-lime-500/10 text-lime-400 border-lime-500/20' 
                             : 'bg-red-500/10 text-red-400 border-red-500/20'
@@ -438,33 +493,33 @@ const TradingApp = () => {
                       </div>
                       <button 
                         onClick={handleClosePosition}
-                        className="text-[9px] font-medium text-zinc-400 hover:text-zinc-200 px-2.5 py-1 rounded-md border border-zinc-700/50 hover:border-zinc-600 bg-zinc-800/50 hover:bg-zinc-800 transition-all"
+                        className="text-[10px] font-medium text-zinc-400 hover:text-zinc-200 px-3 py-1.5 rounded-lg border border-zinc-700/50 hover:border-zinc-600 bg-zinc-800/50 hover:bg-zinc-800 transition-all"
                       >
                         Close Position
                       </button>
                     </div>
 
                     {/* Multiplier Display */}
-                    <div className="bg-zinc-950/80 rounded-lg p-3 mb-3 border border-zinc-800/60 relative z-10">
-                      <div className="flex items-end justify-between mb-2.5">
+                    <div className="bg-zinc-950/80 rounded-xl p-4 mb-4 border border-zinc-800/60 relative z-10">
+                      <div className="flex items-end justify-between mb-3">
                         <div>
-                          <div className="text-[9px] font-medium text-zinc-500 mb-0.5">Current Multiplier</div>
-                          <div className={`text-xl font-mono font-bold tracking-tight ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
+                          <div className="text-[10px] font-medium text-zinc-500 mb-1">Current Multiplier</div>
+                          <div className={`text-2xl font-mono font-bold tracking-tight ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
                             {currentMultiplier.toFixed(2)}x
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-[9px] font-medium text-zinc-500 mb-0.5">Target Zone</div>
-                          <div className="text-sm font-mono font-bold text-amber-400 flex items-center justify-end gap-1">
-                            <Trophy size={12} className="text-amber-500" />
+                          <div className="text-[10px] font-medium text-zinc-500 mb-1">Target Zone</div>
+                          <div className="text-base font-mono font-bold text-amber-400 flex items-center justify-end gap-1.5">
+                            <Trophy size={14} className="text-amber-500" />
                             {positionData?.multiplier.toFixed(2)}x
                           </div>
                         </div>
                       </div>
                       
                       {/* Progress Bar */}
-                      <div className="relative pt-0.5">
-                        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="relative pt-1">
+                        <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
                           <div 
                             className={`h-full rounded-full transition-all duration-700 ease-out relative ${
                               progress >= 100 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' : 
@@ -475,10 +530,10 @@ const TradingApp = () => {
                             <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]"></div>
                           </div>
                         </div>
-                        <div className="flex justify-between mt-1.5 text-[9px] font-medium text-zinc-500">
+                        <div className="flex justify-between mt-2 text-[10px] font-medium text-zinc-500">
                           <span>Entry</span>
-                          <span className="flex items-center gap-0.5 text-amber-500/80">
-                            <Flame size={9} />
+                          <span className="flex items-center gap-1 text-amber-500/80">
+                            <Flame size={10} />
                             Breakout
                           </span>
                         </div>
@@ -486,20 +541,20 @@ const TradingApp = () => {
                     </div>
 
                     {/* PnL Details */}
-                    <div className="grid grid-cols-3 gap-2 text-center relative z-10">
-                      <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/30">
-                        <div className="text-[9px] font-medium text-zinc-500 mb-0.5">Entry Price</div>
-                        <div className="text-[11px] text-zinc-200 font-mono font-medium">{formatCurrency(positionData?.entryPrice || 0)}</div>
+                    <div className="grid grid-cols-3 gap-3 text-center relative z-10">
+                      <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
+                        <div className="text-[10px] font-medium text-zinc-500 mb-1">Entry Price</div>
+                        <div className="text-xs text-zinc-200 font-mono font-medium">{formatCurrency(positionData?.entryPrice || 0)}</div>
                       </div>
-                      <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/30">
-                        <div className="text-[9px] font-medium text-zinc-500 mb-0.5">Unrealized P&L</div>
-                        <div className={`text-[11px] font-mono font-bold ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
+                      <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
+                        <div className="text-[10px] font-medium text-zinc-500 mb-1">Unrealized P&L</div>
+                        <div className={`text-xs font-mono font-bold ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
                           {isProfit ? '+' : ''}{formatCurrency(pnl)}
                         </div>
                       </div>
-                      <div className="bg-zinc-950/50 rounded-lg p-2 border border-zinc-800/30">
-                        <div className="text-[9px] font-medium text-zinc-500 mb-0.5">Target Strike</div>
-                        <div className={`text-[11px] font-mono font-medium ${positionData?.direction === 'long' ? 'text-lime-400/90' : 'text-red-400/90'}`}>
+                      <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
+                        <div className="text-[10px] font-medium text-zinc-500 mb-1">Target Strike</div>
+                        <div className={`text-xs font-mono font-medium ${positionData?.direction === 'long' ? 'text-lime-400/90' : 'text-red-400/90'}`}>
                           {formatCurrency(positionData?.strikePrice || 0)}
                         </div>
                       </div>
@@ -515,15 +570,15 @@ const TradingApp = () => {
         {/* Bottom Section - Trading or Position */}
         {viewState === 'trading' ? (
           /* Bottom Trading Bar - positioned higher */
-          <div className="absolute bottom-0 left-0 right-0 p-3.5 pb-7 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-4 pb-8 bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent">
             {/* Structured Entry */}
             <button 
               onClick={() => setShowModal(true)}
-              className="w-full py-3 rounded-lg border border-amber-500/50 bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-400 hover:text-amber-300 hover:border-amber-400 transition-all group shadow-lg shadow-black/50"
+              className="w-full py-3.5 rounded-xl border border-amber-500/50 bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-400 hover:text-amber-300 hover:border-amber-400 transition-all group shadow-lg shadow-black/50"
             >
-              <Zap size={16} className="text-amber-500" />
-              <span className="text-[13px] font-semibold">Structured Strategy</span>
-              <ChevronUp size={14} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+              <Zap size={18} className="text-amber-500" />
+              <span className="text-sm font-semibold">Structured Strategy</span>
+              <ChevronUp size={16} className="opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
           </div>
         ) : null}
@@ -537,12 +592,12 @@ const TradingApp = () => {
             ></div>
             
             <div 
-              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl z-10 max-h-[85%] overflow-y-auto transition-transform duration-150"
+              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-3xl shadow-2xl z-10 max-h-[85%] overflow-y-auto transition-transform duration-150"
               style={{ transform: `translateY(${modalOffset}px)` }}
             >
               {/* Modal Handle - Click or drag to close */}
               <div 
-                className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing"
+                className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
                 onClick={() => setShowModal(false)}
                 onMouseDown={handleDragStart}
                 onMouseMove={handleDragMove}
@@ -552,68 +607,68 @@ const TradingApp = () => {
                 onTouchMove={handleDragMove}
                 onTouchEnd={handleDragEnd}
               >
-                <div className="w-9 h-1 bg-zinc-600 rounded-full hover:bg-zinc-500 transition-colors"></div>
+                <div className="w-10 h-1 bg-zinc-600 rounded-full hover:bg-zinc-500 transition-colors"></div>
               </div>
               
               {/* Modal Header */}
-              <div className="px-4 pb-2.5 pt-1.5 border-b border-zinc-800 flex justify-between items-center">
+              <div className="px-5 pb-3 pt-2 border-b border-zinc-800 flex justify-between items-center">
           <div>
-            <div className="flex items-center gap-1.5">
-                    <span className="text-white font-bold text-[13px]">BTC/USDT</span>
-                    <span className="bg-zinc-800 text-[9px] px-1.5 py-0.5 rounded text-zinc-400">Perpetual</span>
+            <div className="flex items-center gap-2">
+                    <span className="text-white font-bold text-sm">BTC/USDT</span>
+                    <span className="bg-zinc-800 text-[10px] px-1.5 py-0.5 rounded text-zinc-400">Perpetual</span>
             </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-base font-mono text-white font-medium">
+                    <span className="text-lg font-mono text-white font-medium">
                 {formatCurrency(currentPrice)}
               </span>
-                    <span className="text-[9px] text-zinc-400 flex items-center">
-                      <Activity size={9} className="mr-0.5 text-lime-400 animate-pulse" /> Live
+                    <span className="text-[10px] text-zinc-400 flex items-center">
+                      <Activity size={10} className="mr-0.5 text-lime-400 animate-pulse" /> Live
               </span>
             </div>
           </div>
           <div className="text-right">
-                  <div className="text-[9px] text-zinc-500 mb-0.5">24h Change</div>
-                  <div className={`font-mono text-[11px] ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
+                  <div className="text-[10px] text-zinc-500 mb-0.5">24h Change</div>
+                  <div className={`font-mono text-xs ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
                     {direction === 'long' ? '+2.45%' : '-1.20%'}
                   </div>
           </div>
         </div>
 
               {/* Modal Body */}
-              <div className="px-4 py-3.5 space-y-3.5">
+              <div className="px-5 py-4 space-y-4">
                 {/* Direction Selection */}
-                <div className="bg-zinc-950 p-0.5 rounded-md flex border border-zinc-800">
+                <div className="bg-zinc-950 p-0.5 rounded-lg flex border border-zinc-800">
             <button 
               onClick={() => setDirection('long')}
-                    className={`flex-1 py-2 rounded-md text-[11px] font-medium transition-all flex items-center justify-center gap-1 border ${
+                    className={`flex-1 py-2.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 border ${
                 direction === 'long' 
                         ? 'bg-zinc-800 text-lime-400 shadow-lg border-zinc-700' 
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingUp size={11} /> Bullish (Long)
+                    <TrendingUp size={12} /> Bullish (Long)
             </button>
             <button 
               onClick={() => setDirection('short')}
-                    className={`flex-1 py-2 rounded-md text-[11px] font-medium transition-all flex items-center justify-center gap-1 border ${
+                    className={`flex-1 py-2.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 border ${
                 direction === 'short' 
                         ? 'bg-zinc-800 text-red-400 shadow-lg border-zinc-700' 
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingDown size={11} /> Bearish (Short)
+                    <TrendingDown size={12} /> Bearish (Short)
             </button>
           </div>
 
                 {/* Price Target Setup */}
-                <div className="relative h-20 bg-zinc-950/50 rounded-lg border border-zinc-800/50 p-2.5 flex flex-col justify-center overflow-hidden">
-                  <div className="absolute top-1.5 left-2.5 text-[7px] uppercase tracking-wider text-zinc-700 font-bold">
+                <div className="relative h-24 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
+                  <div className="absolute top-1.5 left-3 text-[8px] uppercase tracking-wider text-zinc-700 font-bold">
                     Price Target Setup
             </div>
             
-                  <div className="relative w-full h-1.5 mt-3.5 z-10">
+                  <div className="relative w-full h-1.5 mt-4 z-10">
                     <div 
-                      className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-zinc-500 rounded-full z-20"
+                      className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 rounded-full z-20"
                       style={{ left: '10%' }}
                     ></div>
                 <div 
@@ -626,30 +681,30 @@ const TradingApp = () => {
                       className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center z-20"
                       style={{ left: `${11 + Math.max(0, riskLevel * 0.8 - 1)}%` }}
                     >
-                      <div className={`w-0.5 h-3.5 rounded-full ${
+                      <div className={`w-0.5 h-4 rounded-full ${
                         direction === 'long' ? 'bg-lime-400/60' : 'bg-red-400/60'
                       }`}></div>
               </div>
             </div>
 
-                  <div className="flex justify-between mt-1.5 text-[9px] font-mono relative z-10">
+                  <div className="flex justify-between mt-2 text-[10px] font-mono relative z-10">
               <div className="text-zinc-400">
-                      <div className="mb-0.5 flex items-center gap-0.5">
-                        Spot Price <Lock size={6} className="text-zinc-600" />
+                      <div className="mb-0.5 flex items-center gap-1">
+                        Spot Price <Lock size={7} className="text-zinc-600" />
                       </div>
-                      <div className="text-white text-[10px]">{formatCurrency(currentPrice)}</div>
-                      <div className="text-[7px] text-zinc-600 mt-0.5">
+                      <div className="text-white text-[11px]">{formatCurrency(currentPrice)}</div>
+                      <div className="text-[8px] text-zinc-600 mt-0.5">
                         {direction === 'long' ? 'Price must be above this level' : 'Price must be below this level'}
                       </div>
               </div>
               <div className="text-right">
                       <div className="mb-0.5 text-zinc-500 flex items-center justify-end gap-0.5">
-                        Strike Price <Target size={7} />
+                        Strike Price <Target size={8} />
                 </div>
-                      <div className={`text-[10px] ${themeColorText}`}>
+                      <div className={`text-[11px] ${themeColorText}`}>
                   {formatCurrency(strikePrice)}
                 </div>
-                      <div className={`text-[8px] mt-0.5 ${direction === 'long' ? 'text-lime-400/60' : 'text-red-400/60'}`}>
+                      <div className={`text-[9px] mt-0.5 ${direction === 'long' ? 'text-lime-400/60' : 'text-red-400/60'}`}>
                         Price Gap: {direction === 'long' ? '+' : '-'}{formatPercent(priceGapPercentage)}
                 </div>
               </div>
@@ -658,40 +713,40 @@ const TradingApp = () => {
 
                 {/* Risk Slider */}
           <div>
-                  <div className="flex justify-between items-end mb-1.5">
-                    <div className="flex items-center gap-1">
-                      <label className="text-[11px] font-medium text-zinc-400">Risk Profile</label>
+                  <div className="flex justify-between items-end mb-2">
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-xs font-medium text-zinc-400">Risk Profile</label>
                 <button 
                   onClick={() => setShowInfoModal(true)}
                         className={`text-zinc-600 ${themeColorHoverText} transition-colors`}
                 >
-                        <Info size={11} />
+                        <Info size={12} />
                 </button>
               </div>
               <div className="text-right">
-                      <span className={`text-base font-mono font-bold ${themeColorText}`}>+{(targetROI * 100).toFixed(0)}%</span>
-                      <span className="text-[9px] text-zinc-500 block">Potential ROI</span>
+                      <span className={`text-lg font-mono font-bold ${themeColorText}`}>+{(targetROI * 100).toFixed(0)}%</span>
+                      <span className="text-[10px] text-zinc-500 block">Potential ROI</span>
               </div>
             </div>
             
-                  <div className="relative h-7 flex items-center px-2.5">
-                    <div className="absolute left-2.5 right-2.5 h-1 bg-zinc-800 rounded-full"></div>
+                  <div className="relative h-8 flex items-center px-3">
+                    <div className="absolute left-3 right-3 h-1.5 bg-zinc-800 rounded-full"></div>
                     <div 
-                      className={`absolute left-2.5 h-1 rounded-full transition-all ${direction === 'long' ? 'bg-lime-500/40' : 'bg-red-500/40'}`}
+                      className={`absolute left-3 h-1.5 rounded-full transition-all ${direction === 'long' ? 'bg-lime-500/40' : 'bg-red-500/40'}`}
                       style={{ width: `calc(${riskLevel}% * 0.94)` }}
                     ></div>
                     <div 
-                      className={`absolute w-6 h-6 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all ${
+                      className={`absolute w-7 h-7 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all ${
                         direction === 'long' ? 'bg-lime-500 border-lime-400' : 'bg-red-500 border-red-400'
                       }`}
                       style={{ 
-                        left: `calc(${riskLevel}% * 0.94 + 10px - 12px)`,
+                        left: `calc(${riskLevel}% * 0.94 + 12px - 14px)`,
                         boxShadow: direction === 'long' 
                           ? '0 2px 10px rgba(163, 230, 53, 0.5)' 
                           : '0 2px 10px rgba(248, 113, 113, 0.5)'
                       }}
                     >
-                      <span className="text-[8px] font-bold text-white/90 tracking-tighter select-none">|||</span>
+                      <span className="text-[9px] font-bold text-white/90 tracking-tighter select-none">|||</span>
                     </div>
               <input
                 type="range"
@@ -699,42 +754,42 @@ const TradingApp = () => {
                 max="100"
                 value={riskLevel}
                 onChange={(e) => setRiskLevel(Number(e.target.value))}
-                      className="absolute left-2.5 right-2.5 h-7 opacity-0 cursor-grab active:cursor-grabbing z-10"
+                      className="absolute left-3 right-3 h-8 opacity-0 cursor-grab active:cursor-grabbing z-10"
               />
             </div>
-                  <div className="flex justify-between text-[8px] text-zinc-600 uppercase font-bold tracking-wider mt-0.5 px-2.5">
+                  <div className="flex justify-between text-[9px] text-zinc-600 uppercase font-bold tracking-wider mt-0.5 px-3">
               <span>Conservative</span>
               <span>Aggressive</span>
             </div>
           </div>
 
                 {/* Info Cards */}
-                <div className="grid grid-cols-2 gap-2 text-[9px]">
-                  <div className="bg-zinc-900/50 p-2 rounded-md border border-zinc-800/50">
+                <div className="grid grid-cols-2 gap-2 text-[10px]">
+                  <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
                     <div className="text-zinc-500 mb-0.5">Prob. of Profit</div>
-                    <div className="text-zinc-300 font-mono text-[13px]">{winProbability.toFixed(1)}%</div>
+                    <div className="text-zinc-300 font-mono text-sm">{winProbability.toFixed(1)}%</div>
                   </div>
-                  <div className="bg-zinc-900/50 p-2 rounded-md border border-zinc-800/50">
+                  <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
                     <div className="text-zinc-500 mb-0.5">Expiration</div>
-                    <div className="text-zinc-300 font-mono text-[13px] flex items-center gap-0.5">
-                      <Clock size={9} /> 24 Hours
+                    <div className="text-zinc-300 font-mono text-sm flex items-center gap-0.5">
+                      <Clock size={10} /> 24 Hours
                     </div>
                   </div>
                 </div>
 
                 {/* Margin Input */}
-                <div className={`bg-zinc-950 rounded-md p-2.5 border transition-colors flex items-center justify-between ${principal <= 0 ? 'border-red-900/50' : 'border-zinc-800'}`}>
-                  <div className="flex items-center gap-1.5 text-zinc-400">
-                    <Wallet size={12} />
-                    <span className="text-[11px]">Margin</span>
+                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors flex items-center justify-between ${principal <= 0 ? 'border-red-900/50' : 'border-zinc-800'}`}>
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <Wallet size={14} />
+                    <span className="text-xs">Margin</span>
             </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-zinc-500 text-[11px]">$</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-zinc-500 text-xs">$</span>
               <input 
                 type="number" 
                 value={principal}
                 onChange={(e) => setPrincipal(Number(e.target.value))}
-                      className="bg-transparent text-right text-white font-mono text-[13px] focus:outline-none w-16"
+                      className="bg-transparent text-right text-white font-mono text-sm focus:outline-none w-20"
                 min="0"
               />
               </div>
@@ -742,11 +797,11 @@ const TradingApp = () => {
           </div>
 
               {/* Modal Footer */}
-              <div className="px-4 pb-7 pt-1.5">
+              <div className="px-5 pb-8 pt-2">
           <button 
             disabled={!isOrderValid}
                   onClick={handlePlaceOrder}
-                  className={`w-full font-bold py-2.5 rounded-lg transition-all flex items-center justify-between px-3.5 group text-[13px] ${
+                  className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-between px-4 group text-sm ${
               isOrderValid 
                       ? direction === 'long'
                         ? 'bg-white hover:bg-zinc-100 border-2 border-lime-500 text-lime-600 shadow-lg cursor-pointer'
@@ -755,15 +810,15 @@ const TradingApp = () => {
             }`}
           >
             <div className="flex flex-col items-start">
-                    <span className={`text-[7px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Est. Payout</span>
-                    <span className="font-mono text-[12px]">{formatCurrency(potentialProfit)}</span>
+                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Est. Payout</span>
+                    <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
             </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <span>{isOrderValid ? (direction === 'long' ? 'Confirm Buy' : 'Confirm Sell') : 'Enter Margin'}</span>
-                    <ArrowRight size={12} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
+                    <ArrowRight size={14} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
             </div>
           </button>
-                <p className="text-center text-[8px] text-zinc-600 mt-1.5 leading-relaxed">
+                <p className="text-center text-[9px] text-zinc-600 mt-2 leading-relaxed">
                   Structured products involve high risk. Strike price is indicative. Capital is at risk.
           </p>
         </div>
@@ -773,22 +828,22 @@ const TradingApp = () => {
 
         {/* Info Modal */}
       {showInfoModal && (
-          <div className="absolute inset-0 z-[60] flex items-center justify-center p-5 bg-black/60 backdrop-blur-sm">
+          <div className="absolute inset-0 z-[60] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
             <div className="absolute inset-0" onClick={() => setShowInfoModal(false)}></div>
-            <div className="bg-zinc-900 border border-zinc-700 p-4 rounded-xl w-full max-w-[280px] shadow-2xl relative z-10">
+            <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl w-full max-w-xs shadow-2xl relative z-10">
             <button 
               onClick={() => setShowInfoModal(false)}
-              className="absolute top-2.5 right-2.5 text-zinc-500 hover:text-white transition-colors"
+              className="absolute top-3 right-3 text-zinc-500 hover:text-white transition-colors"
             >
-              <X size={14} />
+              <X size={16} />
             </button>
             
-            <div className={`flex items-center gap-1.5 mb-2.5 ${themeColorText}`}>
-              <ShieldAlert size={16} />
-                <h3 className="font-bold text-[13px]">Risk Logic</h3>
+            <div className={`flex items-center gap-2 mb-3 ${themeColorText}`}>
+              <ShieldAlert size={18} />
+                <h3 className="font-bold text-sm">Risk Logic</h3>
             </div>
             
-            <div className="space-y-2.5 text-[11px] text-zinc-400 leading-relaxed">
+            <div className="space-y-3 text-xs text-zinc-400 leading-relaxed">
               <p>
                   <strong className="text-zinc-200">Higher Risk = Higher Multiplier.</strong><br/>
                   Moving the slider increases the distance between Spot Price and Strike Price.
@@ -800,7 +855,7 @@ const TradingApp = () => {
 
             <button 
               onClick={() => setShowInfoModal(false)}
-              className="w-full mt-4 bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-medium py-2 rounded-md transition-colors"
+              className="w-full mt-5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-medium py-2.5 rounded-lg transition-colors"
             >
               Understood
             </button>
@@ -809,7 +864,8 @@ const TradingApp = () => {
       )}
 
         {/* Home Indicator */}
-        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-28 h-1 bg-white/20 rounded-full"></div>
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full"></div>
+      </div>
       </div>
     </div>
   );
