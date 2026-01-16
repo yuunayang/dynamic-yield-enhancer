@@ -719,11 +719,11 @@ const TradingApp = () => {
                 </div>
                       <div className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]'}`}>
                         {direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'}
-                      </div>
+                </div>
               </div>
             </div>
           </div>
-                
+
                 {/* Hint text - outside the box */}
                 <div className={`text-[9px] -mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-[#FF4757]/70'}`}>
                   {direction === 'long' 
@@ -806,8 +806,8 @@ const TradingApp = () => {
                                expiry.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
                       })()}
                     </div>
-                  </div>
-                </div>
+            </div>
+          </div>
 
                 {/* Stake Amount Input */}
                 <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors ${stakeError ? 'border-red-500/50' : 'border-zinc-800'}`}>
@@ -815,13 +815,13 @@ const TradingApp = () => {
                     <div className="flex items-center gap-2 text-zinc-400">
                       <Wallet size={14} />
                       <span className="text-xs">Stake Amount</span>
-                    </div>
+            </div>
                     <div className="flex items-center gap-1.5">
                       <span className="text-zinc-500 text-xs">$</span>
-                      <input 
+              <input 
                         type="text" 
                         inputMode="numeric"
-                        value={principal}
+                value={principal}
                         onChange={(e) => {
                           const val = e.target.value.replace(/^0+/, '') || '0';
                           const num = parseInt(val, 10);
@@ -830,15 +830,15 @@ const TradingApp = () => {
                           }
                         }}
                         className={`bg-transparent text-right font-mono text-sm focus:outline-none w-28 ${stakeError ? 'text-red-400' : 'text-white'}`}
-                      />
-                    </div>
-                  </div>
+              />
+            </div>
+          </div>
                   <div className="flex items-center justify-between mt-1.5">
                     <span className="text-[9px] text-zinc-500">Available: <span className="text-zinc-400 font-mono">${availableBalance.toLocaleString()}.00</span></span>
                     {stakeError && (
                       <span className="text-[9px] text-red-400">{stakeError}</span>
                     )}
-                  </div>
+              </div>
             </div>
           </div>
 
@@ -849,15 +849,13 @@ const TradingApp = () => {
                   onClick={handlePlaceOrder}
                   className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-between px-4 group text-sm ${
               isOrderValid 
-                      ? direction === 'long'
-                        ? 'bg-white hover:bg-zinc-100 border-2 border-lime-500 text-lime-600 shadow-lg cursor-pointer'
-                        : 'bg-white hover:bg-zinc-100 border-2 border-[#FF4757] text-[#FF4757] shadow-lg cursor-pointer'
+                      ? 'bg-white hover:bg-zinc-100 border-2 border-white text-zinc-900 shadow-lg cursor-pointer'
                       : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border-2 border-zinc-700'
             }`}
           >
             <div className="flex flex-col items-start">
-                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Potential Payout</span>
-                    <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
+                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'text-zinc-500' : 'opacity-50'}`}>Potential Payout</span>
+                    <span className={`font-mono text-sm ${isOrderValid ? 'text-zinc-700' : ''}`}>{formatCurrency(potentialProfit)}</span>
             </div>
                   <div className="flex items-center gap-1.5">
                     <span>Confirm</span>
