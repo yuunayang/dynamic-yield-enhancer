@@ -615,7 +615,7 @@ const TradingApp = () => {
           <div>
             <div className="flex items-center gap-2">
                     <span className="text-white font-bold text-sm">BTC/USDT</span>
-                    <span className="bg-zinc-800 text-[10px] px-1.5 py-0.5 rounded text-zinc-400">Perpetual</span>
+                    <span className="bg-zinc-800 text-[10px] px-1.5 py-0.5 rounded text-zinc-400">Paper Trading</span>
             </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-lg font-mono text-white font-medium">
@@ -627,7 +627,7 @@ const TradingApp = () => {
             </div>
           </div>
           <div className="text-right">
-                  <div className="text-[10px] text-zinc-500 mb-0.5">24h Change</div>
+                  <div className="text-[10px] text-zinc-500 mb-0.5">24h</div>
                   <div className={`font-mono text-xs ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
                     {direction === 'long' ? '+2.45%' : '-1.20%'}
                   </div>
@@ -646,7 +646,7 @@ const TradingApp = () => {
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingUp size={12} /> Bullish (Long)
+                    <TrendingUp size={12} /> Price Rising (Long)
             </button>
             <button 
               onClick={() => setDirection('short')}
@@ -656,14 +656,14 @@ const TradingApp = () => {
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingDown size={12} /> Bearish (Short)
+                    <TrendingDown size={12} /> Price Falling (Short)
             </button>
           </div>
 
                 {/* Price Target Setup */}
-                <div className="relative h-24 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
+                <div className="relative h-28 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
                   <div className="absolute top-1.5 left-3 text-[8px] uppercase tracking-wider text-zinc-700 font-bold">
-                    Price Target Setup
+                    YOUR PREDICTION
             </div>
             
                   <div className="relative w-full h-1.5 mt-4 z-10">
@@ -690,32 +690,37 @@ const TradingApp = () => {
                   <div className="flex justify-between mt-2 text-[10px] font-mono relative z-10">
               <div className="text-zinc-400">
                       <div className="mb-0.5 flex items-center gap-1">
-                        Spot Price <Lock size={7} className="text-zinc-600" />
+                        Current Price <Lock size={10} className="text-amber-500" />
                       </div>
                       <div className="text-white text-[11px]">{formatCurrency(currentPrice)}</div>
-                      <div className="text-[8px] text-zinc-600 mt-0.5">
-                        {direction === 'long' ? 'Price must be above this level' : 'Price must be below this level'}
-                      </div>
               </div>
               <div className="text-right">
                       <div className="mb-0.5 text-zinc-500 flex items-center justify-end gap-0.5">
-                        Strike Price <Target size={8} />
+                        Target Price
                 </div>
-                      <div className={`text-[11px] ${themeColorText}`}>
+                      <div className={`text-[11px] flex items-center justify-end gap-1 ${themeColorText}`}>
                   {formatCurrency(strikePrice)}
-                </div>
-                      <div className={`text-[9px] mt-0.5 ${direction === 'long' ? 'text-lime-400/60' : 'text-red-400/60'}`}>
-                        Price Gap: {direction === 'long' ? '+' : '-'}{formatPercent(priceGapPercentage)}
+                        <span className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
+                          ({direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'})
+                        </span>
                 </div>
               </div>
             </div>
+                  
+                  {/* Bottom hint text */}
+                  <div className={`text-[9px] text-center mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
+                    {direction === 'long' 
+                      ? 'You win if BTC rises above your target price within 24 hours'
+                      : 'You win if BTC falls below your target price within 24 hours'
+                    }
+                  </div>
           </div>
 
                 {/* Risk Slider */}
           <div>
                   <div className="flex justify-between items-end mb-2">
                     <div className="flex items-center gap-1.5">
-                      <label className="text-xs font-medium text-zinc-400">Risk Profile</label>
+                      <label className="text-xs font-medium text-zinc-400">Difficulty Level</label>
                 <button 
                   onClick={() => setShowInfoModal(true)}
                         className={`text-zinc-600 ${themeColorHoverText} transition-colors`}
@@ -725,7 +730,7 @@ const TradingApp = () => {
               </div>
               <div className="text-right">
                       <span className={`text-lg font-mono font-bold ${themeColorText}`}>+{(targetROI * 100).toFixed(0)}%</span>
-                      <span className="text-[10px] text-zinc-500 block">Potential ROI</span>
+                      <span className="text-[10px] text-zinc-500 block">Win Rate</span>
               </div>
             </div>
             
@@ -758,41 +763,58 @@ const TradingApp = () => {
               />
             </div>
                   <div className="flex justify-between text-[9px] text-zinc-600 uppercase font-bold tracking-wider mt-0.5 px-3">
-              <span>Conservative</span>
-              <span>Aggressive</span>
+              <span>Easier to Win</span>
+              <span>Harder</span>
             </div>
           </div>
 
                 {/* Info Cards */}
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
-                    <div className="text-zinc-500 mb-0.5">Prob. of Profit</div>
+                    <div className="text-zinc-500 mb-0.5">Success Rate</div>
                     <div className="text-zinc-300 font-mono text-sm">{winProbability.toFixed(1)}%</div>
+                    <div className={`text-[8px] mt-0.5 ${winProbability >= 50 ? 'text-lime-400/70' : winProbability >= 35 ? 'text-amber-400/70' : 'text-red-400/70'}`}>
+                      {winProbability >= 50 ? 'High Chance' : winProbability >= 35 ? 'Medium Chance' : 'Low Chance'}
+                    </div>
                   </div>
                   <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
-                    <div className="text-zinc-500 mb-0.5">Expiration</div>
+                    <div className="text-zinc-500 mb-0.5">Time Limit</div>
                     <div className="text-zinc-300 font-mono text-sm flex items-center gap-0.5">
                       <Clock size={10} /> 24 Hours
+                    </div>
+                    <div className="text-[8px] text-zinc-500 mt-0.5">
+                      Expires: {(() => {
+                        const expiry = new Date();
+                        expiry.setHours(expiry.getHours() + 24);
+                        return expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
+                               expiry.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+                      })()}
                     </div>
                   </div>
                 </div>
 
-                {/* Margin Input */}
-                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors flex items-center justify-between ${principal <= 0 ? 'border-red-900/50' : 'border-zinc-800'}`}>
-                  <div className="flex items-center gap-2 text-zinc-400">
-                    <Wallet size={14} />
-                    <span className="text-xs">Margin</span>
-            </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-zinc-500 text-xs">$</span>
-              <input 
-                type="number" 
-                value={principal}
-                onChange={(e) => setPrincipal(Number(e.target.value))}
-                      className="bg-transparent text-right text-white font-mono text-sm focus:outline-none w-20"
-                min="0"
-              />
-              </div>
+                {/* Stake Amount Input */}
+                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors ${principal <= 0 ? 'border-red-900/50' : 'border-zinc-800'}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-zinc-400">
+                      <Wallet size={14} />
+                      <span className="text-xs">Stake Amount</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-zinc-500 text-xs">$</span>
+                      <input 
+                        type="number" 
+                        value={principal}
+                        onChange={(e) => setPrincipal(Number(e.target.value))}
+                        className="bg-transparent text-right text-white font-mono text-sm focus:outline-none w-20"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[9px] text-zinc-500 mt-1.5 flex items-center justify-between">
+                    <span>Available: <span className="text-zinc-400 font-mono">$10,000.00</span></span>
+                    <button className="text-amber-500 hover:text-amber-400 font-medium">MAX</button>
+                  </div>
             </div>
           </div>
 
@@ -810,16 +832,19 @@ const TradingApp = () => {
             }`}
           >
             <div className="flex flex-col items-start">
-                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Est. Payout</span>
+                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Potential Payout</span>
                     <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
             </div>
                   <div className="flex items-center gap-1.5">
-                    <span>{isOrderValid ? (direction === 'long' ? 'Confirm Buy' : 'Confirm Sell') : 'Enter Margin'}</span>
+                    <span>{isOrderValid ? 'Confirm' : 'Enter Stake'}</span>
                     <ArrowRight size={14} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
             </div>
           </button>
                 <p className="text-center text-[9px] text-zinc-600 mt-2 leading-relaxed">
-                  Structured products involve high risk. Strike price is indicative. Capital is at risk.
+                  {direction === 'long' 
+                    ? `Risk: If BTC is below ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
+                    : `Risk: If BTC is above ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
+                  }
           </p>
         </div>
       </div>
@@ -840,16 +865,16 @@ const TradingApp = () => {
             
             <div className={`flex items-center gap-2 mb-3 ${themeColorText}`}>
               <ShieldAlert size={18} />
-                <h3 className="font-bold text-sm">Risk Logic</h3>
+                <h3 className="font-bold text-sm">Difficulty Level</h3>
             </div>
             
             <div className="space-y-3 text-xs text-zinc-400 leading-relaxed">
               <p>
-                  <strong className="text-zinc-200">Higher Risk = Higher Multiplier.</strong><br/>
-                  Moving the slider increases the distance between Spot Price and Strike Price.
+                  <strong className="text-zinc-200">Higher Difficulty = Higher Reward.</strong><br/>
+                  Moving the slider increases the distance between Current Price and Target Price.
               </p>
               <p>
-                  This boosts your potential <span className={themeColorText}>ROI</span>, but reduces the probability of profit.
+                  This boosts your potential <span className={themeColorText}>Win Rate</span>, but reduces the success rate.
               </p>
             </div>
 
