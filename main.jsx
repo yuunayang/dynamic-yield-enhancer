@@ -577,7 +577,7 @@ const TradingApp = () => {
               className="w-full py-3.5 rounded-xl border border-amber-500/50 bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-400 hover:text-amber-300 hover:border-amber-400 transition-all group shadow-lg shadow-black/50"
             >
               <Zap size={18} className="text-amber-500" />
-              <span className="text-sm font-semibold">Structured Strategy</span>
+              <span className="text-sm font-semibold">Super Trade</span>
               <ChevronUp size={16} className="opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
           </div>
@@ -592,7 +592,7 @@ const TradingApp = () => {
             ></div>
             
             <div 
-              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-3xl shadow-2xl z-10 max-h-[85%] overflow-y-auto transition-transform duration-150"
+              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-3xl shadow-2xl z-10 max-h-[85%] overflow-hidden transition-transform duration-150"
               style={{ transform: `translateY(${modalOffset}px)` }}
             >
               {/* Modal Handle - Click or drag to close */}
@@ -661,7 +661,7 @@ const TradingApp = () => {
           </div>
 
                 {/* Price Target Setup */}
-                <div className="relative h-28 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
+                <div className="relative h-24 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
                   <div className="absolute top-1.5 left-3 text-[8px] uppercase tracking-wider text-zinc-700 font-bold">
                     YOUR PREDICTION
             </div>
@@ -698,23 +698,23 @@ const TradingApp = () => {
                       <div className="mb-0.5 text-zinc-500 flex items-center justify-end gap-0.5">
                         Target Price
                 </div>
-                      <div className={`text-[11px] flex items-center justify-end gap-1 ${themeColorText}`}>
+                      <div className={`text-[11px] ${themeColorText}`}>
                   {formatCurrency(strikePrice)}
-                        <span className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
-                          ({direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'})
-                        </span>
                 </div>
+                      <div className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
+                        {direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'}
+                      </div>
               </div>
             </div>
-                  
-                  {/* Bottom hint text */}
-                  <div className={`text-[9px] text-center mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
-                    {direction === 'long' 
-                      ? 'You win if BTC rises above your target price within 24 hours'
-                      : 'You win if BTC falls below your target price within 24 hours'
-                    }
-                  </div>
           </div>
+                
+                {/* Hint text - outside the box */}
+                <div className={`text-[9px] text-left ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
+                  {direction === 'long' 
+                    ? 'You win if BTC rises above your target price within 24 hours'
+                    : 'You win if BTC falls below your target price within 24 hours'
+                  }
+                </div>
 
                 {/* Risk Slider */}
           <div>
@@ -811,9 +811,8 @@ const TradingApp = () => {
                       />
                     </div>
                   </div>
-                  <div className="text-[9px] text-zinc-500 mt-1.5 flex items-center justify-between">
+                  <div className="text-[9px] text-zinc-500 mt-1.5">
                     <span>Available: <span className="text-zinc-400 font-mono">$10,000.00</span></span>
-                    <button className="text-amber-500 hover:text-amber-400 font-medium">MAX</button>
                   </div>
             </div>
           </div>
