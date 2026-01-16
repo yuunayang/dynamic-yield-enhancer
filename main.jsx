@@ -134,7 +134,22 @@ const TradingApp = () => {
   const winProbability = Math.max(20, 65 - riskLevel * 0.4);
   const potentialProfit = principal * multiplier;
 
-  const isOrderValid = principal > 0;
+  // 可用余额
+  const availableBalance = 10000;
+  
+  // 验证逻辑
+  const MIN_STAKE = 10;
+  const MAX_STAKE = 99999;
+  
+  const getStakeError = () => {
+    if (principal < MIN_STAKE) return `Minimum stake is $${MIN_STAKE}`;
+    if (principal > MAX_STAKE) return `Maximum stake is $${MAX_STAKE.toLocaleString()}`;
+    if (principal > availableBalance) return `Exceeds available balance`;
+    return null;
+  };
+  
+  const stakeError = getStakeError();
+  const isOrderValid = principal >= MIN_STAKE && principal <= MAX_STAKE && principal <= availableBalance;
 
   // 辅助函数
   const formatCurrency = (val) => {
@@ -635,7 +650,7 @@ const TradingApp = () => {
         </div>
 
               {/* Modal Body */}
-              <div className="px-5 py-4 space-y-4">
+              <div className="px-5 py-3 space-y-3">
                 {/* Direction Selection */}
                 <div className="bg-zinc-950 p-0.5 rounded-lg flex border border-zinc-800">
             <button 
@@ -709,7 +724,7 @@ const TradingApp = () => {
           </div>
                 
                 {/* Hint text - outside the box */}
-                <div className={`text-[9px] text-left ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
+                <div className={`text-[9px] -mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
                   {direction === 'long' 
                     ? 'You win if BTC rises above your target price within 24 hours'
                     : 'You win if BTC falls below your target price within 24 hours'
@@ -763,7 +778,7 @@ const TradingApp = () => {
               />
             </div>
                   <div className="flex justify-between text-[9px] text-zinc-600 uppercase font-bold tracking-wider mt-0.5 px-3">
-              <span>Easier to Win</span>
+              <span>Easier</span>
               <span>Harder</span>
             </div>
           </div>
@@ -794,7 +809,7 @@ const TradingApp = () => {
                 </div>
 
                 {/* Stake Amount Input */}
-                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors ${principal <= 0 ? 'border-red-900/50' : 'border-zinc-800'}`}>
+                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors ${stakeError ? 'border-red-500/50' : 'border-zinc-800'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-zinc-400">
                       <Wallet size={14} />
@@ -806,19 +821,22 @@ const TradingApp = () => {
                         type="number" 
                         value={principal}
                         onChange={(e) => setPrincipal(Number(e.target.value))}
-                        className="bg-transparent text-right text-white font-mono text-sm focus:outline-none w-20"
+                        className={`bg-transparent text-right font-mono text-sm focus:outline-none w-28 ${stakeError ? 'text-red-400' : 'text-white'}`}
                         min="0"
                       />
                     </div>
                   </div>
-                  <div className="text-[9px] text-zinc-500 mt-1.5">
-                    <span>Available: <span className="text-zinc-400 font-mono">$10,000.00</span></span>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-[9px] text-zinc-500">Available: <span className="text-zinc-400 font-mono">${availableBalance.toLocaleString()}.00</span></span>
+                    {stakeError && (
+                      <span className="text-[9px] text-red-400">{stakeError}</span>
+                    )}
                   </div>
             </div>
           </div>
 
               {/* Modal Footer */}
-              <div className="px-5 pb-8 pt-2">
+              <div className="px-5 pb-10 pt-3">
           <button 
             disabled={!isOrderValid}
                   onClick={handlePlaceOrder}
@@ -835,11 +853,11 @@ const TradingApp = () => {
                     <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
             </div>
                   <div className="flex items-center gap-1.5">
-                    <span>{isOrderValid ? 'Confirm' : 'Enter Stake'}</span>
+                    <span>{isOrderValid ? 'Confirm' : (stakeError ? 'Fix Errors' : 'Enter Stake')}</span>
                     <ArrowRight size={14} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
             </div>
           </button>
-                <p className="text-center text-[9px] text-zinc-600 mt-2 leading-relaxed">
+                <p className="text-center text-[9px] text-zinc-600 mt-3 leading-relaxed px-2">
                   {direction === 'long' 
                     ? `Risk: If BTC is below ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
                     : `Risk: If BTC is above ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
