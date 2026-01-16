@@ -818,11 +818,17 @@ const TradingApp = () => {
                     <div className="flex items-center gap-1.5">
                       <span className="text-zinc-500 text-xs">$</span>
                       <input 
-                        type="number" 
+                        type="text" 
+                        inputMode="numeric"
                         value={principal}
-                        onChange={(e) => setPrincipal(Number(e.target.value))}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/^0+/, '') || '0';
+                          const num = parseInt(val, 10);
+                          if (!isNaN(num) && num >= 0) {
+                            setPrincipal(num);
+                          }
+                        }}
                         className={`bg-transparent text-right font-mono text-sm focus:outline-none w-28 ${stakeError ? 'text-red-400' : 'text-white'}`}
-                        min="0"
                       />
                     </div>
                   </div>
@@ -853,7 +859,7 @@ const TradingApp = () => {
                     <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
             </div>
                   <div className="flex items-center gap-1.5">
-                    <span>{isOrderValid ? 'Confirm' : (stakeError ? 'Fix Errors' : 'Enter Stake')}</span>
+                    <span>Confirm</span>
                     <ArrowRight size={14} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
             </div>
           </button>
