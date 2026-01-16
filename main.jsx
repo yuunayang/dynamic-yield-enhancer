@@ -212,12 +212,13 @@ const TradingApp = () => {
     setModalOffset(0);
   };
 
-  // 动态颜色
-  const themeColorText = direction === 'long' ? 'text-lime-400' : 'text-red-400';
-  const themeColorHoverText = direction === 'long' ? 'hover:text-lime-400' : 'hover:text-red-400';
+  // 动态颜色 - Short 使用 #FF4757
+  const shortColor = '#FF4757';
+  const themeColorText = direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]';
+  const themeColorHoverText = direction === 'long' ? 'hover:text-lime-400' : 'hover:text-[#FF4757]';
   const themeColorAccent = direction === 'long' 
     ? 'accent-lime-400 hover:accent-lime-300 focus:ring-lime-400/20' 
-    : 'accent-red-400 hover:accent-red-300 focus:ring-red-400/20';
+    : 'accent-[#FF4757] hover:accent-[#FF4757] focus:ring-[#FF4757]/20';
 
   // 计算持仓收益
   const calculatePositionPnL = () => {
@@ -496,12 +497,12 @@ const TradingApp = () => {
                     {/* Position Header */}
                     <div className="flex items-center justify-between mb-4 relative z-10">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-2.5 h-2.5 rounded-full ${positionData?.direction === 'long' ? 'bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'} animate-pulse`}></div>
+                        <div className={`w-2.5 h-2.5 rounded-full ${positionData?.direction === 'long' ? 'bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]' : 'bg-[#FF4757] shadow-[0_0_8px_rgba(255,71,87,0.5)]'} animate-pulse`}></div>
                         <span className="text-xs font-medium text-zinc-300">Active Position</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
                           positionData?.direction === 'long' 
                             ? 'bg-lime-500/10 text-lime-400 border-lime-500/20' 
-                            : 'bg-red-500/10 text-red-400 border-red-500/20'
+                            : 'bg-[#FF4757]/10 text-[#FF4757] border-[#FF4757]/20'
                         }`}>
                           {positionData?.direction === 'long' ? 'LONG' : 'SHORT'}
                         </span>
@@ -569,7 +570,7 @@ const TradingApp = () => {
                       </div>
                       <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
                         <div className="text-[10px] font-medium text-zinc-500 mb-1">Target Strike</div>
-                        <div className={`text-xs font-mono font-medium ${positionData?.direction === 'long' ? 'text-lime-400/90' : 'text-red-400/90'}`}>
+                        <div className={`text-xs font-mono font-medium ${positionData?.direction === 'long' ? 'text-lime-400/90' : 'text-[#FF4757]/90'}`}>
                           {formatCurrency(positionData?.strikePrice || 0)}
                         </div>
                       </div>
@@ -643,7 +644,7 @@ const TradingApp = () => {
           </div>
           <div className="text-right">
                   <div className="text-[10px] text-zinc-500 mb-0.5">24h</div>
-                  <div className={`font-mono text-xs ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
+                  <div className={`font-mono text-xs ${direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]'}`}>
                     {direction === 'long' ? '+2.45%' : '-1.20%'}
                   </div>
           </div>
@@ -667,7 +668,7 @@ const TradingApp = () => {
               onClick={() => setDirection('short')}
                     className={`flex-1 py-2.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 border ${
                 direction === 'short' 
-                        ? 'bg-zinc-800 text-red-400 shadow-lg border-zinc-700' 
+                        ? 'bg-zinc-800 text-[#FF4757] shadow-lg border-zinc-700' 
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
@@ -688,7 +689,7 @@ const TradingApp = () => {
                     ></div>
                 <div 
                       className={`absolute top-1/2 -translate-y-1/2 h-0.5 rounded-full ${
-                        direction === 'long' ? 'bg-lime-500/40' : 'bg-red-500/40'
+                        direction === 'long' ? 'bg-lime-500/40' : 'bg-[#FF4757]/40'
                       }`}
                       style={{ left: '11%', width: `${Math.max(0, riskLevel * 0.8 - 1)}%` }}
                 ></div>
@@ -697,7 +698,7 @@ const TradingApp = () => {
                       style={{ left: `${11 + Math.max(0, riskLevel * 0.8 - 1)}%` }}
                     >
                       <div className={`w-0.5 h-4 rounded-full ${
-                        direction === 'long' ? 'bg-lime-400/60' : 'bg-red-400/60'
+                        direction === 'long' ? 'bg-lime-400/60' : 'bg-[#FF4757]/60'
                       }`}></div>
               </div>
             </div>
@@ -716,7 +717,7 @@ const TradingApp = () => {
                       <div className={`text-[11px] ${themeColorText}`}>
                   {formatCurrency(strikePrice)}
                 </div>
-                      <div className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-red-400'}`}>
+                      <div className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]'}`}>
                         {direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'}
                       </div>
               </div>
@@ -724,7 +725,7 @@ const TradingApp = () => {
           </div>
                 
                 {/* Hint text - outside the box */}
-                <div className={`text-[9px] -mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-red-400/70'}`}>
+                <div className={`text-[9px] -mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-[#FF4757]/70'}`}>
                   {direction === 'long' 
                     ? 'You win if BTC rises above your target price within 24 hours'
                     : 'You win if BTC falls below your target price within 24 hours'
@@ -752,18 +753,18 @@ const TradingApp = () => {
                   <div className="relative h-8 flex items-center px-3">
                     <div className="absolute left-3 right-3 h-1.5 bg-zinc-800 rounded-full"></div>
                     <div 
-                      className={`absolute left-3 h-1.5 rounded-full transition-all ${direction === 'long' ? 'bg-lime-500/40' : 'bg-red-500/40'}`}
+                      className={`absolute left-3 h-1.5 rounded-full transition-all ${direction === 'long' ? 'bg-lime-500/40' : 'bg-[#FF4757]/40'}`}
                       style={{ width: `calc(${riskLevel}% * 0.94)` }}
                     ></div>
                     <div 
                       className={`absolute w-7 h-7 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all ${
-                        direction === 'long' ? 'bg-lime-500 border-lime-400' : 'bg-red-500 border-red-400'
+                        direction === 'long' ? 'bg-lime-500 border-lime-400' : 'bg-[#FF4757] border-[#FF4757]'
                       }`}
                       style={{ 
                         left: `calc(${riskLevel}% * 0.94 + 12px - 14px)`,
                         boxShadow: direction === 'long' 
                           ? '0 2px 10px rgba(163, 230, 53, 0.5)' 
-                          : '0 2px 10px rgba(248, 113, 113, 0.5)'
+                          : '0 2px 10px rgba(255, 71, 87, 0.5)'
                       }}
                     >
                       <span className="text-[9px] font-bold text-white/90 tracking-tighter select-none">|||</span>
@@ -850,7 +851,7 @@ const TradingApp = () => {
               isOrderValid 
                       ? direction === 'long'
                         ? 'bg-white hover:bg-zinc-100 border-2 border-lime-500 text-lime-600 shadow-lg cursor-pointer'
-                        : 'bg-white hover:bg-zinc-100 border-2 border-red-500 text-red-600 shadow-lg cursor-pointer'
+                        : 'bg-white hover:bg-zinc-100 border-2 border-[#FF4757] text-[#FF4757] shadow-lg cursor-pointer'
                       : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border-2 border-zinc-700'
             }`}
           >
