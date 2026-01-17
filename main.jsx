@@ -725,7 +725,7 @@ const TradingApp = () => {
           </div>
 
                 {/* Hint text - outside the box */}
-                <div className={`text-[9px] -mt-2 ${direction === 'long' ? 'text-lime-400/70' : 'text-[#FF4757]/70'}`}>
+                <div className="text-[9px] -mt-2 text-zinc-400">
                   {direction === 'long' 
                     ? 'You win if BTC rises above your target price within 24 hours'
                     : 'You win if BTC falls below your target price within 24 hours'
