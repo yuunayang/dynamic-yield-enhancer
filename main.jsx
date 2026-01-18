@@ -134,22 +134,7 @@ const TradingApp = () => {
   const winProbability = Math.max(20, 65 - riskLevel * 0.4);
   const potentialProfit = principal * multiplier;
 
-  // 可用余额
-  const availableBalance = 10000;
-  
-  // 验证逻辑
-  const MIN_STAKE = 10;
-  const MAX_STAKE = 99999;
-  
-  const getStakeError = () => {
-    if (principal < MIN_STAKE) return `Minimum stake is $${MIN_STAKE}`;
-    if (principal > MAX_STAKE) return `Maximum stake is $${MAX_STAKE.toLocaleString()}`;
-    if (principal > availableBalance) return `Exceeds available balance`;
-    return null;
-  };
-  
-  const stakeError = getStakeError();
-  const isOrderValid = principal >= MIN_STAKE && principal <= MAX_STAKE && principal <= availableBalance;
+  const isOrderValid = principal > 0;
 
   // 辅助函数
   const formatCurrency = (val) => {
@@ -212,13 +197,12 @@ const TradingApp = () => {
     setModalOffset(0);
   };
 
-  // 动态颜色 - Short 使用 #FF4757
-  const shortColor = '#FF4757';
-  const themeColorText = direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]';
-  const themeColorHoverText = direction === 'long' ? 'hover:text-lime-400' : 'hover:text-[#FF4757]';
+  // 动态颜色
+  const themeColorText = direction === 'long' ? 'text-emerald-400' : 'text-rose-400';
+  const themeColorHoverText = direction === 'long' ? 'hover:text-emerald-400' : 'hover:text-rose-400';
   const themeColorAccent = direction === 'long' 
-    ? 'accent-lime-400 hover:accent-lime-300 focus:ring-lime-400/20' 
-    : 'accent-[#FF4757] hover:accent-[#FF4757] focus:ring-[#FF4757]/20';
+    ? 'accent-emerald-400 hover:accent-emerald-300 focus:ring-emerald-400/20' 
+    : 'accent-rose-400 hover:accent-rose-300 focus:ring-rose-400/20';
 
   // 计算持仓收益
   const calculatePositionPnL = () => {
@@ -288,7 +272,7 @@ const TradingApp = () => {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-white font-mono text-sm">{formatCurrency(currentPrice)}</span>
-                <span className={`text-[11px] flex items-center ${priceChange >= 0 ? 'text-lime-400' : 'text-red-400'}`}>
+                <span className={`text-[11px] flex items-center ${priceChange >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {priceChange >= 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                   {priceChange >= 0 ? '+' : ''}{priceChange.toFixed(2)}%
                 </span>
@@ -361,7 +345,7 @@ const TradingApp = () => {
                   <div className={`absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity`}></div>
                   {/* Wick */}
                   <div 
-                    className={`w-px absolute ${candle.isGreen ? 'bg-lime-500/60' : 'bg-red-500/60'}`}
+                    className={`w-px absolute ${candle.isGreen ? 'bg-emerald-500/60' : 'bg-rose-500/60'}`}
                     style={{
                       bottom: `${lowPercent}%`,
                       height: `${highPercent - lowPercent}%`
@@ -369,7 +353,7 @@ const TradingApp = () => {
                   ></div>
                   {/* Body */}
                   <div 
-                    className={`w-full absolute rounded-sm ${candle.isGreen ? 'bg-lime-500' : 'bg-red-500'}`}
+                    className={`w-full absolute rounded-sm ${candle.isGreen ? 'bg-emerald-500' : 'bg-rose-500'}`}
                     style={{
                       bottom: `${bodyBottomPercent}%`,
                       height: `${Math.max(1, bodyTopPercent - bodyBottomPercent)}%`
@@ -397,11 +381,11 @@ const TradingApp = () => {
                 <span className="text-zinc-500">Open</span>
                 <span className="text-zinc-200 font-mono text-right">{candlesticks[hoveredCandle].open.toFixed(2)}</span>
                 <span className="text-zinc-500">High</span>
-                <span className="text-lime-400 font-mono text-right">{candlesticks[hoveredCandle].high.toFixed(2)}</span>
+                <span className="text-emerald-400 font-mono text-right">{candlesticks[hoveredCandle].high.toFixed(2)}</span>
                 <span className="text-zinc-500">Low</span>
-                <span className="text-red-400 font-mono text-right">{candlesticks[hoveredCandle].low.toFixed(2)}</span>
+                <span className="text-rose-400 font-mono text-right">{candlesticks[hoveredCandle].low.toFixed(2)}</span>
                 <span className="text-zinc-500">Close</span>
-                <span className={`font-mono text-right ${candlesticks[hoveredCandle].isGreen ? 'text-lime-400' : 'text-red-400'}`}>
+                <span className={`font-mono text-right ${candlesticks[hoveredCandle].isGreen ? 'text-emerald-400' : 'text-rose-400'}`}>
                   {candlesticks[hoveredCandle].close.toFixed(2)}
                 </span>
               </div>
@@ -444,9 +428,9 @@ const TradingApp = () => {
                 { size: 2.88, price: 64205.00, depth: 0.78 },
               ].map((row, i) => (
                 <div key={i} className="flex items-center justify-between relative h-6 group">
-                  <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-lime-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
+                  <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-emerald-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
                   <span className="text-[11px] text-zinc-400 font-mono relative z-10 pl-1">{row.size.toFixed(2)}</span>
-                  <span className="text-[11px] text-lime-400/90 font-mono relative z-10 pr-1 group-hover:text-lime-400 transition-colors">{row.price.toFixed(2)}</span>
+                  <span className="text-[11px] text-emerald-400/90 font-mono relative z-10 pr-1 group-hover:text-emerald-400 transition-colors">{row.price.toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -460,8 +444,8 @@ const TradingApp = () => {
                 { size: 1.78, price: 64255.50, depth: 0.52 },
               ].map((row, i) => (
                 <div key={i} className="flex items-center justify-between relative h-6 group">
-                  <div className="absolute left-0 bottom-0 right-0 h-0.5 bg-red-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
-                  <span className="text-[11px] text-red-400/90 font-mono relative z-10 pl-1 group-hover:text-red-400 transition-colors">{row.price.toFixed(2)}</span>
+                  <div className="absolute left-0 bottom-0 right-0 h-0.5 bg-rose-500/40 rounded-full" style={{ width: `${row.depth * 100}%` }}></div>
+                  <span className="text-[11px] text-rose-400/90 font-mono relative z-10 pl-1 group-hover:text-rose-400 transition-colors">{row.price.toFixed(2)}</span>
                   <span className="text-[11px] text-zinc-400 font-mono relative z-10 pr-1">{row.size.toFixed(2)}</span>
                 </div>
               ))}
@@ -476,11 +460,11 @@ const TradingApp = () => {
             </div>
             <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800/60 flex flex-col justify-center">
               <div className="text-[10px] font-medium text-zinc-500 mb-1">24h High</div>
-              <div className="text-xs text-lime-400/90 font-mono font-medium">$65,420</div>
+              <div className="text-xs text-emerald-400/90 font-mono font-medium">$65,420</div>
             </div>
             <div className="bg-zinc-900 rounded-xl p-3 border border-zinc-800/60 flex flex-col justify-center">
               <div className="text-[10px] font-medium text-zinc-500 mb-1">24h Low</div>
-              <div className="text-xs text-red-400/90 font-mono font-medium">$62,180</div>
+              <div className="text-xs text-rose-400/90 font-mono font-medium">$62,180</div>
             </div>
           </div>
           
@@ -497,12 +481,12 @@ const TradingApp = () => {
                     {/* Position Header */}
                     <div className="flex items-center justify-between mb-4 relative z-10">
                       <div className="flex items-center gap-2.5">
-                        <div className={`w-2.5 h-2.5 rounded-full ${positionData?.direction === 'long' ? 'bg-lime-500 shadow-[0_0_8px_rgba(132,204,22,0.5)]' : 'bg-[#FF4757] shadow-[0_0_8px_rgba(255,71,87,0.5)]'} animate-pulse`}></div>
+                        <div className={`w-2.5 h-2.5 rounded-full ${positionData?.direction === 'long' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'} animate-pulse`}></div>
                         <span className="text-xs font-medium text-zinc-300">Active Position</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
                           positionData?.direction === 'long' 
-                            ? 'bg-lime-500/10 text-lime-400 border-lime-500/20' 
-                            : 'bg-[#FF4757]/10 text-[#FF4757] border-[#FF4757]/20'
+                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                            : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                         }`}>
                           {positionData?.direction === 'long' ? 'LONG' : 'SHORT'}
                         </span>
@@ -520,7 +504,7 @@ const TradingApp = () => {
                       <div className="flex items-end justify-between mb-3">
                         <div>
                           <div className="text-[10px] font-medium text-zinc-500 mb-1">Current Multiplier</div>
-                          <div className={`text-2xl font-mono font-bold tracking-tight ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
+                          <div className={`text-2xl font-mono font-bold tracking-tight ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
                             {currentMultiplier.toFixed(2)}x
                           </div>
                         </div>
@@ -539,7 +523,7 @@ const TradingApp = () => {
                           <div 
                             className={`h-full rounded-full transition-all duration-700 ease-out relative ${
                               progress >= 100 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' : 
-                              isProfit ? 'bg-lime-500' : 'bg-red-500'
+                              isProfit ? 'bg-emerald-500' : 'bg-rose-500'
                             }`}
                             style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
                           >
@@ -564,13 +548,13 @@ const TradingApp = () => {
                       </div>
                       <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
                         <div className="text-[10px] font-medium text-zinc-500 mb-1">Unrealized P&L</div>
-                        <div className={`text-xs font-mono font-bold ${isProfit ? 'text-lime-400' : 'text-red-400'}`}>
+                        <div className={`text-xs font-mono font-bold ${isProfit ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {isProfit ? '+' : ''}{formatCurrency(pnl)}
                         </div>
                       </div>
                       <div className="bg-zinc-950/50 rounded-xl p-2.5 border border-zinc-800/30">
                         <div className="text-[10px] font-medium text-zinc-500 mb-1">Target Strike</div>
-                        <div className={`text-xs font-mono font-medium ${positionData?.direction === 'long' ? 'text-lime-400/90' : 'text-[#FF4757]/90'}`}>
+                        <div className={`text-xs font-mono font-medium ${positionData?.direction === 'long' ? 'text-emerald-400/90' : 'text-rose-400/90'}`}>
                           {formatCurrency(positionData?.strikePrice || 0)}
                         </div>
                       </div>
@@ -593,7 +577,7 @@ const TradingApp = () => {
               className="w-full py-3.5 rounded-xl border border-amber-500/50 bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center gap-2 text-amber-400 hover:text-amber-300 hover:border-amber-400 transition-all group shadow-lg shadow-black/50"
             >
               <Zap size={18} className="text-amber-500" />
-              <span className="text-sm font-semibold">Super Trade</span>
+              <span className="text-sm font-semibold">Structured Strategy</span>
               <ChevronUp size={16} className="opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
           </div>
@@ -608,7 +592,7 @@ const TradingApp = () => {
             ></div>
             
             <div 
-              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-3xl shadow-2xl z-10 max-h-[85%] overflow-hidden transition-transform duration-150"
+              className="relative w-full bg-zinc-900 border-t border-zinc-700 rounded-t-3xl shadow-2xl z-10 max-h-[85%] overflow-y-auto transition-transform duration-150"
               style={{ transform: `translateY(${modalOffset}px)` }}
             >
               {/* Modal Handle - Click or drag to close */}
@@ -631,55 +615,55 @@ const TradingApp = () => {
           <div>
             <div className="flex items-center gap-2">
                     <span className="text-white font-bold text-sm">BTC/USDT</span>
-                    <span className="bg-zinc-800 text-[10px] px-1.5 py-0.5 rounded text-zinc-400">Paper Trading</span>
+                    <span className="bg-zinc-800 text-[10px] px-1.5 py-0.5 rounded text-zinc-400">Perpetual</span>
             </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-lg font-mono text-white font-medium">
                 {formatCurrency(currentPrice)}
               </span>
                     <span className="text-[10px] text-zinc-400 flex items-center">
-                      <Activity size={10} className="mr-0.5 text-lime-400 animate-pulse" /> Live
+                      <Activity size={10} className="mr-0.5 text-emerald-400 animate-pulse" /> Live
               </span>
             </div>
           </div>
           <div className="text-right">
-                  <div className="text-[10px] text-zinc-500 mb-0.5">24h</div>
-                  <div className={`font-mono text-xs ${direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]'}`}>
+                  <div className="text-[10px] text-zinc-500 mb-0.5">24h Change</div>
+                  <div className={`font-mono text-xs ${direction === 'long' ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {direction === 'long' ? '+2.45%' : '-1.20%'}
                   </div>
           </div>
         </div>
 
               {/* Modal Body */}
-              <div className="px-5 py-3 space-y-3">
+              <div className="px-5 py-4 space-y-4">
                 {/* Direction Selection */}
                 <div className="bg-zinc-950 p-0.5 rounded-lg flex border border-zinc-800">
             <button 
               onClick={() => setDirection('long')}
                     className={`flex-1 py-2.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 border ${
                 direction === 'long' 
-                        ? 'bg-zinc-800 text-lime-400 shadow-lg border-zinc-700' 
+                        ? 'bg-zinc-800 text-emerald-400 shadow-lg border-zinc-700' 
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingUp size={12} /> Price Rising (Long)
+                    <TrendingUp size={12} /> Bullish (Long)
             </button>
             <button 
               onClick={() => setDirection('short')}
                     className={`flex-1 py-2.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-1.5 border ${
                 direction === 'short' 
-                        ? 'bg-zinc-800 text-[#FF4757] shadow-lg border-zinc-700' 
+                        ? 'bg-zinc-800 text-rose-400 shadow-lg border-zinc-700' 
                         : 'text-zinc-500 hover:text-zinc-300 border-transparent'
               }`}
             >
-                    <TrendingDown size={12} /> Price Falling (Short)
+                    <TrendingDown size={12} /> Bearish (Short)
             </button>
           </div>
 
                 {/* Price Target Setup */}
                 <div className="relative h-24 bg-zinc-950/50 rounded-xl border border-zinc-800/50 p-3 flex flex-col justify-center overflow-hidden">
                   <div className="absolute top-1.5 left-3 text-[8px] uppercase tracking-wider text-zinc-700 font-bold">
-                    YOUR PREDICTION
+                    Price Target Setup
             </div>
             
                   <div className="relative w-full h-1.5 mt-4 z-10">
@@ -689,7 +673,7 @@ const TradingApp = () => {
                     ></div>
                 <div 
                       className={`absolute top-1/2 -translate-y-1/2 h-0.5 rounded-full ${
-                        direction === 'long' ? 'bg-lime-500/40' : 'bg-[#FF4757]/40'
+                        direction === 'long' ? 'bg-emerald-500/40' : 'bg-rose-500/40'
                       }`}
                       style={{ left: '11%', width: `${Math.max(0, riskLevel * 0.8 - 1)}%` }}
                 ></div>
@@ -698,7 +682,7 @@ const TradingApp = () => {
                       style={{ left: `${11 + Math.max(0, riskLevel * 0.8 - 1)}%` }}
                     >
                       <div className={`w-0.5 h-4 rounded-full ${
-                        direction === 'long' ? 'bg-lime-400/60' : 'bg-[#FF4757]/60'
+                        direction === 'long' ? 'bg-emerald-400/60' : 'bg-rose-400/60'
                       }`}></div>
               </div>
             </div>
@@ -706,37 +690,32 @@ const TradingApp = () => {
                   <div className="flex justify-between mt-2 text-[10px] font-mono relative z-10">
               <div className="text-zinc-400">
                       <div className="mb-0.5 flex items-center gap-1">
-                        Current Price <Lock size={10} className="text-amber-500" />
+                        Spot Price <Lock size={7} className="text-zinc-600" />
                       </div>
                       <div className="text-white text-[11px]">{formatCurrency(currentPrice)}</div>
+                      <div className="text-[8px] text-zinc-600 mt-0.5">
+                        {direction === 'long' ? 'Price must be above this level' : 'Price must be below this level'}
+                      </div>
               </div>
               <div className="text-right">
                       <div className="mb-0.5 text-zinc-500 flex items-center justify-end gap-0.5">
-                        Target Price
+                        Strike Price <Target size={8} />
                 </div>
                       <div className={`text-[11px] ${themeColorText}`}>
                   {formatCurrency(strikePrice)}
                 </div>
-                      <div className={`text-[9px] ${direction === 'long' ? 'text-lime-400' : 'text-[#FF4757]'}`}>
-                        {direction === 'long' ? '+' : '-'}{(priceGapPercentage * 100).toFixed(2)}% {direction === 'long' ? 'higher' : 'lower'}
+                      <div className={`text-[9px] mt-0.5 ${direction === 'long' ? 'text-emerald-400/60' : 'text-rose-400/60'}`}>
+                        Price Gap: {direction === 'long' ? '+' : '-'}{formatPercent(priceGapPercentage)}
                 </div>
               </div>
             </div>
           </div>
 
-                {/* Hint text - outside the box */}
-                <div className="text-[9px] -mt-2 text-zinc-400">
-                  {direction === 'long' 
-                    ? 'You win if BTC rises above your target price within 24 hours'
-                    : 'You win if BTC falls below your target price within 24 hours'
-                  }
-                </div>
-
                 {/* Risk Slider */}
           <div>
                   <div className="flex justify-between items-end mb-2">
                     <div className="flex items-center gap-1.5">
-                      <label className="text-xs font-medium text-zinc-400">Difficulty Level</label>
+                      <label className="text-xs font-medium text-zinc-400">Risk Profile</label>
                 <button 
                   onClick={() => setShowInfoModal(true)}
                         className={`text-zinc-600 ${themeColorHoverText} transition-colors`}
@@ -746,25 +725,25 @@ const TradingApp = () => {
               </div>
               <div className="text-right">
                       <span className={`text-lg font-mono font-bold ${themeColorText}`}>+{(targetROI * 100).toFixed(0)}%</span>
-                      <span className="text-[10px] text-zinc-500 block">Win Rate</span>
+                      <span className="text-[10px] text-zinc-500 block">Potential ROI</span>
               </div>
             </div>
             
                   <div className="relative h-8 flex items-center px-3">
                     <div className="absolute left-3 right-3 h-1.5 bg-zinc-800 rounded-full"></div>
                     <div 
-                      className={`absolute left-3 h-1.5 rounded-full transition-all ${direction === 'long' ? 'bg-lime-500/40' : 'bg-[#FF4757]/40'}`}
+                      className={`absolute left-3 h-1.5 rounded-full transition-all ${direction === 'long' ? 'bg-emerald-500/40' : 'bg-rose-500/40'}`}
                       style={{ width: `calc(${riskLevel}% * 0.94)` }}
                     ></div>
                     <div 
                       className={`absolute w-7 h-7 rounded-full border-2 flex items-center justify-center pointer-events-none transition-all ${
-                        direction === 'long' ? 'bg-lime-500 border-lime-400' : 'bg-[#FF4757] border-[#FF4757]'
+                        direction === 'long' ? 'bg-emerald-500 border-emerald-400' : 'bg-rose-500 border-rose-400'
                       }`}
                       style={{ 
                         left: `calc(${riskLevel}% * 0.94 + 12px - 14px)`,
                         boxShadow: direction === 'long' 
-                          ? '0 2px 10px rgba(163, 230, 53, 0.5)' 
-                          : '0 2px 10px rgba(255, 71, 87, 0.5)'
+                          ? '0 2px 10px rgba(16, 185, 129, 0.5)' 
+                          : '0 2px 10px rgba(244, 63, 94, 0.5)'
                       }}
                     >
                       <span className="text-[9px] font-bold text-white/90 tracking-tighter select-none">|||</span>
@@ -779,94 +758,68 @@ const TradingApp = () => {
               />
             </div>
                   <div className="flex justify-between text-[9px] text-zinc-600 uppercase font-bold tracking-wider mt-0.5 px-3">
-              <span>Easier</span>
-              <span>Harder</span>
+              <span>Conservative</span>
+              <span>Aggressive</span>
             </div>
           </div>
 
                 {/* Info Cards */}
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
-                    <div className="text-zinc-500 mb-0.5">Success Rate</div>
+                    <div className="text-zinc-500 mb-0.5">Prob. of Profit</div>
                     <div className="text-zinc-300 font-mono text-sm">{winProbability.toFixed(1)}%</div>
-                    <div className={`text-[8px] mt-0.5 ${winProbability >= 50 ? 'text-lime-400/70' : winProbability >= 35 ? 'text-amber-400/70' : 'text-red-400/70'}`}>
-                      {winProbability >= 50 ? 'High Chance' : winProbability >= 35 ? 'Medium Chance' : 'Low Chance'}
-                    </div>
                   </div>
                   <div className="bg-zinc-900/50 p-2.5 rounded-md border border-zinc-800/50">
-                    <div className="text-zinc-500 mb-0.5">Time Limit</div>
+                    <div className="text-zinc-500 mb-0.5">Expiration</div>
                     <div className="text-zinc-300 font-mono text-sm flex items-center gap-0.5">
                       <Clock size={10} /> 24 Hours
                     </div>
-                    <div className="text-[8px] text-zinc-500 mt-0.5">
-                      Expires: {(() => {
-                        const expiry = new Date();
-                        expiry.setHours(expiry.getHours() + 24);
-                        return expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + 
-                               expiry.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-                      })()}
-                    </div>
-            </div>
-          </div>
+                  </div>
+                </div>
 
-                {/* Stake Amount Input */}
-                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors ${stakeError ? 'border-red-500/50' : 'border-zinc-800'}`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-zinc-400">
-                      <Wallet size={14} />
-                      <span className="text-xs">Stake Amount</span>
+                {/* Margin Input */}
+                <div className={`bg-zinc-950 rounded-lg p-3 border transition-colors flex items-center justify-between ${principal <= 0 ? 'border-rose-900/50' : 'border-zinc-800'}`}>
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <Wallet size={14} />
+                    <span className="text-xs">Margin</span>
             </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-zinc-500 text-xs">$</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-zinc-500 text-xs">$</span>
               <input 
-                        type="text" 
-                        inputMode="numeric"
+                type="number" 
                 value={principal}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/^0+/, '') || '0';
-                          const num = parseInt(val, 10);
-                          if (!isNaN(num) && num >= 0) {
-                            setPrincipal(num);
-                          }
-                        }}
-                        className={`bg-transparent text-right font-mono text-sm focus:outline-none w-28 ${stakeError ? 'text-red-400' : 'text-white'}`}
+                onChange={(e) => setPrincipal(Number(e.target.value))}
+                      className="bg-transparent text-right text-white font-mono text-sm focus:outline-none w-20"
+                min="0"
               />
-            </div>
-          </div>
-                  <div className="flex items-center justify-between mt-1.5">
-                    <span className="text-[9px] text-zinc-500">Available: <span className="text-zinc-400 font-mono">${availableBalance.toLocaleString()}.00</span></span>
-                    {stakeError && (
-                      <span className="text-[9px] text-red-400">{stakeError}</span>
-                    )}
               </div>
             </div>
           </div>
 
               {/* Modal Footer */}
-              <div className="px-5 pb-10 pt-3">
+              <div className="px-5 pb-8 pt-2">
           <button 
             disabled={!isOrderValid}
                   onClick={handlePlaceOrder}
                   className={`w-full font-bold py-3 rounded-xl transition-all flex items-center justify-between px-4 group text-sm ${
               isOrderValid 
-                      ? 'bg-white hover:bg-zinc-100 border-2 border-white text-zinc-900 shadow-lg cursor-pointer'
+                      ? direction === 'long'
+                        ? 'bg-white hover:bg-zinc-100 border-2 border-emerald-500 text-emerald-600 shadow-lg cursor-pointer'
+                        : 'bg-white hover:bg-zinc-100 border-2 border-rose-500 text-rose-600 shadow-lg cursor-pointer'
                       : 'bg-zinc-800 text-zinc-600 cursor-not-allowed border-2 border-zinc-700'
             }`}
           >
             <div className="flex flex-col items-start">
-                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'text-zinc-500' : 'opacity-50'}`}>Potential Payout</span>
-                    <span className={`font-mono text-sm ${isOrderValid ? 'text-zinc-700' : ''}`}>{formatCurrency(potentialProfit)}</span>
+                    <span className={`text-[8px] uppercase tracking-wider ${isOrderValid ? 'opacity-70' : 'opacity-50'}`}>Est. Payout</span>
+                    <span className="font-mono text-sm">{formatCurrency(potentialProfit)}</span>
             </div>
                   <div className="flex items-center gap-1.5">
-                    <span>Confirm</span>
+                    <span>{isOrderValid ? (direction === 'long' ? 'Confirm Buy' : 'Confirm Sell') : 'Enter Margin'}</span>
                     <ArrowRight size={14} className={`transition-transform ${isOrderValid ? 'group-hover:translate-x-1' : ''}`} />
             </div>
           </button>
-                <p className="text-center text-[9px] text-zinc-600 mt-3 leading-relaxed px-2">
-                  {direction === 'long' 
-                    ? `Risk: If BTC is below ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
-                    : `Risk: If BTC is above ${formatCurrency(strikePrice)} when time expires, you lose your stake. This is paper trading only.`
-                  }
+                <p className="text-center text-[9px] text-zinc-600 mt-2 leading-relaxed">
+                  Structured products involve high risk. Strike price is indicative. Capital is at risk.
           </p>
         </div>
       </div>
@@ -887,16 +840,16 @@ const TradingApp = () => {
             
             <div className={`flex items-center gap-2 mb-3 ${themeColorText}`}>
               <ShieldAlert size={18} />
-                <h3 className="font-bold text-sm">Difficulty Level</h3>
+                <h3 className="font-bold text-sm">Risk Logic</h3>
             </div>
             
             <div className="space-y-3 text-xs text-zinc-400 leading-relaxed">
               <p>
-                  <strong className="text-zinc-200">Higher Difficulty = Higher Reward.</strong><br/>
-                  Moving the slider increases the distance between Current Price and Target Price.
+                  <strong className="text-zinc-200">Higher Risk = Higher Multiplier.</strong><br/>
+                  Moving the slider increases the distance between Spot Price and Strike Price.
               </p>
               <p>
-                  This boosts your potential <span className={themeColorText}>Win Rate</span>, but reduces the success rate.
+                  This boosts your potential <span className={themeColorText}>ROI</span>, but reduces the probability of profit.
               </p>
             </div>
 
